@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Course Registration - Register</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body class="bg-gradient">
+    <div class="auth-container">
+      <div class="auth-card">
+        <h1 class="app-title">Student Course Registration</h1>
+        <h2 class="auth-title">Create an account</h2>
+        <p class="auth-subtitle">Register to start choosing your courses</p>
+
+        <% if (error) { %>
+        <div class="alert alert-danger"><%= error %></div>
+        <% } %>
+
+        <form action="/register" method="POST" class="auth-form">
+          <div class="form-group">
+            <label for="name">Full Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              placeholder="John Doe"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="you@example.com"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="studentId">Student ID</label>
+            <input
+              type="text"
+              id="studentId"
+              name="studentId"
+              placeholder="e.g., 21CS001"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="semester">Current Semester</label>
+            <select id="semester" name="semester" required>
+              <% for (let i = 1; i <= 8; i++) { %>
+              <option value="<%= i %>">Semester <%= i %></option>
+              <% } %>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Create a strong password"
+              required
+            />
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-full">Register</button>
+        </form>
+
+        <p class="auth-footer-text">
+          Already have an account?
+          <a href="/login" class="link">Login here</a>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
+
+

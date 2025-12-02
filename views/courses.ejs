@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Courses - Student Course Registration</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body class="bg-gradient">
+    <div class="page-overlay"></div>
+
+    <header class="navbar">
+      <div class="navbar-left">
+        <div class="brand-logo">SCR</div>
+        <div class="brand-text">
+          <span class="brand-name">Student Course Registration</span>
+          <span class="brand-subtitle">Modern course planner</span>
+        </div>
+      </div>
+      <div class="navbar-right">
+        <div class="welcome-text">
+          Welcome, <span class="user-name"><%= userName %></span>
+        </div>
+        <a href="/logout" class="btn btn-outline">Logout</a>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <section class="top-section">
+        <div class="semester-selector-card glass-card">
+          <div class="card-header-row">
+            <div>
+              <h2>Select Semester</h2>
+              <p class="muted">Update semester to see correct credit limits.</p>
+            </div>
+          </div>
+          <div class="semester-select-row">
+            <label for="semesterSelect" class="form-label">Select Semester:</label>
+            <select id="semesterSelect" class="semester-select">
+              <% for (let i = 1; i <= 8; i++) { %>
+              <option value="<%= i %>" <%= Number(semester) === i ? 'selected' : '' %>>
+                Semester <%= i %>
+              </option>
+              <% } %>
+            </select>
+            <span class="semester-badge">Current: Sem <span id="currentSemesterText"><%= semester %></span></span>
+          </div>
+        </div>
+
+        <div class="credit-cards">
+          <div class="credit-card gradient-card">
+            <h3>Credit Limit</h3>
+            <div class="credit-number" id="creditLimit"><%= creditLimit %></div>
+            <p class="muted">Maximum credits for Semester <span id="limitSemester"><%= semester %></span></p>
+          </div>
+          <div class="credit-card glass-card">
+            <h3>Registered Credits</h3>
+            <div class="credit-number" id="registeredCredits"><%= totalCredits %></div>
+            <p class="muted">Total credits of registered courses</p>
+          </div>
+          <div
+            class="credit-card glass-card <%= remainingCredits < 0 ? 'card-warning pulse' : '' %>"
+          >
+            <h3>Remaining Credits</h3>
+            <div
+              class="credit-number"
+              id="remainingCredits"
+              data-remaining="<%= remainingCredits %>"
+            >
+              <%= remainingCredits %>
+            </div>
+            <p class="muted">
+              <%= remainingCredits < 0 ? 'Limit exceeded! Please unregister some courses.' : 'Credits you can still register' %>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="courses-section">
+        <div class="section-header">
+          <div>
+            <h2>📋 My Registered Courses</h2>
+            <p class="muted">
+              You have <strong><%= registeredCourses.length %></strong> course(s) registered,
+              totaling <strong><%= totalCredits %></strong> credit(s).
+            </p>
+          </div>
+        </div>
+
+        <% if (registeredCourses.length === 0) { %>
+        <div class="empty-state glass-card">
+          <h3>No courses registered yet</h3>
+          <p>Start by registering courses from the list below. Your registered courses will appear here.</p>
+        </div>
+        <% } else { %>
+        <div class="course-grid">
+          <% registeredCourses.forEach((course) => { %>
+          <article class="course-card registered">
+            <div class="course-card-header">
+              <h3 class="course-name"><%= course.name %></h3>
+              <span class="badge code-badge"><%= course.code %></span>
+            </div>
+            <div class="course-meta">
+              <span class="badge <%= course.type === 'Lab' ? 'badge-lab' : 'badge-theory' %>">
+                <%= course.type %>
+              </span>
+              <span class="badge badge-credits"><%= course.credits %> credits</span>
+              <% if (course.semester) { %>
+              <span class="badge badge-semester">Sem <%= course.semester %></span>
+              <% } %>
+            </div>
+            <div class="course-footer">
+              <div class="registered-indicator">
+                <span class="checkmark">✔</span>
+                <span>Registered</span>
+              </div>
+              <button
+                class="btn btn-danger btn-sm js-unregister-btn"
+                data-course-id="<%= course._id %>"
+              >
+                Unregister
+              </button>
+            </div>
+          </article>
+          <% }); %>
+        </div>
+        <% } %>
+      </section>
+
+      <section class="courses-section">
+        <div class="section-header">
+          <div>
+            <h2>📚 Available Courses</h2>
+            <p class="muted">Courses sorted by credits (highest first).</p>
+          </div>
+        </div>
+
+        <div class="course-grid">
+          <% if (availableCourses.length === 0) { %>
+          <div class="empty-state glass-card">
+            <h3>All courses registered!</h3>
+            <p>You have registered for all available courses.</p>
+          </div>
+          <% } else { %>
+          <% availableCourses.forEach((course) => { %>
+          <article class="course-card">
+            <div class="course-card-header">
+              <h3 class="course-name"><%= course.name %></h3>
+              <span class="badge code-badge"><%= course.code %></span>
+            </div>
+            <div class="course-meta">
+              <span class="badge <%= course.type === 'Lab' ? 'badge-lab' : 'badge-theory' %>">
+                <%= course.type %>
+              </span>
+              <span class="badge badge-credits"><%= course.credits %> credits</span>
+              <% if (course.semester) { %>
+              <span class="badge badge-semester">Sem <%= course.semester %></span>
+              <% } %>
+            </div>
+            <div class="course-footer">
+              <button
+                class="btn btn-success btn-sm js-register-btn"
+                data-course-id="<%= course._id %>"
+                data-course-credits="<%= course.credits %>"
+                <%= remainingCredits < course.credits ? 'disabled title="Insufficient remaining credits"' : '' %>
+              >
+                Register
+              </button>
+            </div>
+          </article>
+          <% }); %>
+          <% } %>
+        </div>
+      </section>
+    </main>
+
+    <div id="toast" class="toast hidden">
+      <div id="toastMessage"></div>
+    </div>
+
+    <script>
+      const semesterSelect = document.getElementById('semesterSelect');
+      const currentSemesterText = document.getElementById('currentSemesterText');
+      const limitSemester = document.getElementById('limitSemester');
+      const creditLimitEl = document.getElementById('creditLimit');
+      const registeredCreditsEl = document.getElementById('registeredCredits');
+      const remainingCreditsEl = document.getElementById('remainingCredits');
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toastMessage');
+
+      function showToast(message, isError = false) {
+        toastMessage.textContent = message;
+        toast.classList.remove('hidden', 'toast-error', 'toast-success');
+        toast.classList.add(isError ? 'toast-error' : 'toast-success');
+
+        setTimeout(() => {
+          toast.classList.add('hidden');
+        }, 3000);
+      }
+
+      async function updateSemester(semester) {
+        try {
+          const res = await fetch('/update-semester', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ semester }),
+          });
+          const data = await res.json();
+          if (!data.success) {
+            showToast(data.message || 'Failed to update semester', true);
+            return;
+          }
+
+          const info = data.data;
+          currentSemesterText.textContent = info.semester;
+          limitSemester.textContent = info.semester;
+          creditLimitEl.textContent = info.creditLimit;
+          registeredCreditsEl.textContent = info.totalCredits;
+          remainingCreditsEl.textContent = info.remainingCredits;
+
+          if (info.remainingCredits < 0) {
+            remainingCreditsEl.parentElement.classList.add('card-warning', 'pulse');
+          } else {
+            remainingCreditsEl.parentElement.classList.remove('card-warning', 'pulse');
+          }
+
+          showToast(data.message || 'Semester updated');
+        } catch (err) {
+          console.error(err);
+          showToast('Error updating semester', true);
+        }
+      }
+
+      if (semesterSelect) {
+        semesterSelect.addEventListener('change', (e) => {
+          const semester = Number(e.target.value);
+          updateSemester(semester).then(() => {
+            // Refresh after a short delay so course availability and credits recompute on server
+            setTimeout(() => window.location.reload(), 800);
+          });
+        });
+      }
+
+      async function handleRegister(courseId) {
+        try {
+          const res = await fetch(`/register-course/${courseId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          const data = await res.json();
+          if (!data.success) {
+            showToast(data.message || 'Failed to register course', true);
+            return;
+          }
+          showToast('Course registered successfully');
+          setTimeout(() => window.location.reload(), 800);
+        } catch (err) {
+          console.error(err);
+          showToast('Error registering course', true);
+        }
+      }
+
+      async function handleUnregister(courseId) {
+        try {
+          const res = await fetch(`/unregister-course/${courseId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          const data = await res.json();
+          if (!data.success) {
+            showToast(data.message || 'Failed to unregister course', true);
+            return;
+          }
+          showToast('Course unregistered successfully');
+          setTimeout(() => window.location.reload(), 800);
+        } catch (err) {
+          console.error(err);
+          showToast('Error unregistering course', true);
+        }
+      }
+
+      document.addEventListener('click', (e) => {
+        const registerBtn = e.target.closest('.js-register-btn');
+        const unregisterBtn = e.target.closest('.js-unregister-btn');
+
+        if (registerBtn) {
+          const courseId = registerBtn.dataset.courseId;
+          handleRegister(courseId);
+        }
+
+        if (unregisterBtn) {
+          const courseId = unregisterBtn.dataset.courseId;
+          handleUnregister(courseId);
+        }
+      });
+    </script>
+  </body>
+</html>
+
+
