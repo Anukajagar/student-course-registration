@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3001:3001"
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - SESSION_SECRET=${SESSION_SECRET:-your-super-secret-session-key-change-this-in-production-12345}
+      - NODE_ENV=production
+      - PORT=3001
+    volumes:
+      - ./:/app
+      - /app/node_modules
+
